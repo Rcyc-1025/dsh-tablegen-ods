@@ -94,6 +94,31 @@ test('td_scaffold：validate:false 写入 7 个文件，且两次生成逐字节
   }
 });
 
+test('td_scaffold：Ops.h 带上 BytecodeOpInterface include（含 attributes 的 op 才能编译）', async () => {
+  const set = makeToolset(() => okResult);
+  try {
+    const result = await set.definitions.td_scaffold.execute(
+      {
+        dialect: 'Toy',
+        outDir: 'out',
+        validate: false,
+        ops: [{
+          name: 'Add',
+          operands: [{ name: 'lhs', type: 'I32' }],
+          results: [{ name: 'result', type: 'I32' }],
+          attributes: [{ name: 'value', type: 'I32Attr' }],
+        }],
+      },
+      exec(set.temp.dir),
+    );
+    assert.equal(result.ok, true, JSON.stringify(result.errors));
+    const header = readFileSync(join(set.outDir, 'ToyOps.h'), 'utf8');
+    assert.match(header, /#include "mlir\/Bytecode\/BytecodeOpInterface\.h"/);
+  } finally {
+    set.temp.cleanup();
+  }
+});
+
 test('td_scaffold：overwrite:false 冲突时一个字节都不写；overwrite:true 只覆盖 7 个文件', async () => {
   const set = makeToolset(() => okResult);
   try {
@@ -289,6 +314,21 @@ test('td_check：通过时 ok:true；每次运行都带 -I tdDir 且不留下 .i
   }
 });
 
+test('td_check：kinds:[] 按「未指定」处理，回落到 op-decls / op-defs', async () => {
+  const set = makeToolset(() => okResult);
+  try {
+    makeTdDir(set);
+    const result = await set.definitions.td_check.execute({ tdDir: 'td', kinds: [] }, exec(set.temp.dir));
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.kinds, ['op-decls', 'op-defs']);
+    assert.equal(set.calls.length, 2);
+    const flags = set.calls.map((call) => call.argv.filter((arg) => String(arg).startsWith('-gen-')));
+    assert.deepEqual(flags, [['-gen-op-decls'], ['-gen-op-defs']]);
+  } finally {
+    set.temp.cleanup();
+  }
+});
+
 test('td_check：两种 kind 产生同一条诊断时去重，崩溃栈不进 message', async () => {
   const set = makeToolset(() => ({ exitCode: 1, stdout: '', stderr: DUP_STDERR, timedOut: false }));
   try {
@@ -391,6 +431,41 @@ test('td_explain：真实报错原文 → 结构化条目；空输入给提示',
     );
     assert.equal(unknown.items[0].fix, null);
     assert.match(unknown.hint, /未识别/);
+  } finally {
+    set.temp.cleanup();
+  }
+});
+
+test('td_explain：不传 tdFile 时从 stderr 的第一条 .td 路径自动定位', async () => {
+  const set = makeToolset(() => okResult);
+  try {
+    const tdPath = join(set.temp.dir, 'Bad.td');
+    writeFileSync(
+      tdPath,
+      [
+        '#ifndef BAD_TD',
+        '#define BAD_TD',
+        'include "mlir/IR/OpBase.td"',
+        '',
+        'def Toy_BadOp : Toy_Op<"bad"> {',
+        '  let arguments = (ins I32 $x);',
+        '  let results = (outs);',
+        '}',
+        '',
+        '#endif',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+    const result = await set.definitions.td_explain.execute(
+      { stderr: tdPath + ":6:21: error: expected ')' in dag init" },
+      exec(set.temp.dir),
+    );
+    assert.equal(result.items.length, 1);
+    assert.equal(result.items[0].kind, 'syntax');
+    assert.equal(result.items[0].record, 'Toy_BadOp', '应从自动定位到的源码回填 record');
+    assert.match(String(result.items[0].fix), /\(ins I32:\$x\)/);
+    assert.match(String(result.hint), /Bad\.td/);
   } finally {
     set.temp.cleanup();
   }

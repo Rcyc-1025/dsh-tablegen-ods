@@ -106,7 +106,7 @@ CMakeLists.txt
 { "tdDir": "path/to/dialect", "kinds": ["op-decls", "op-defs"] }
 ```
 
-支持的 `kinds`：`op-decls`、`op-defs`、`dialect-decls`、`dialect-defs`、`typedef-decls`、`typedef-defs`、`rewriters`、`rewriter-decls`。
+支持的 `kinds`：`op-decls`、`op-defs`、`dialect-decls`、`dialect-defs`、`typedef-decls`、`typedef-defs`、`rewriters`、`rewriter-decls`。不传或传空数组都按默认的 `op-decls` / `op-defs` 处理。
 
 - 每次调用都带 `-I <tdDir>` 并以 `tdDir` 为 cwd（否则 `include "XOps.td"` 会找不到）；
 - `.inc` 只写到系统临时目录，用完即删，不污染源码目录；
@@ -138,7 +138,7 @@ CMakeLists.txt
 { "stderr": "<mlir-tblgen 原始 stderr>", "tdFile": "path/to/ToyOps.td" }
 ```
 
-`tdFile` 或 `source` 可选：给了就能把 `record` 回填到最近的 `def`，并把修复建议写成具体片段。
+`tdFile` 或 `source` 可选：给了就能把 `record` 回填到最近的 `def`，并把修复建议写成具体片段。两个都不给时会从 `stderr` 的第一条 `path:line:col:` 里取 `.td` 路径（校验文件确实存在）自动定位。
 
 返回：
 
@@ -170,7 +170,7 @@ CMakeLists.txt
 ## 开发
 
 ```bash
-npm test          # 52 个用例（真实 tblgen 用例在禁止 spawn 的沙箱里自动跳过）
+npm test          # 55 个用例（真实 tblgen 用例在禁止 spawn 的沙箱里自动跳过）
 npm run smoke     # 不需要 tblgen 的冒烟检查
 ```
 

@@ -74,7 +74,7 @@ Writes `ToyDialect.td`, `ToyOps.td`, `ToyDialect.h/.cpp`, `ToyOps.h/.cpp`, `CMak
 { "tdDir": "path/to/dialect", "kinds": ["op-decls", "op-defs"] }
 ```
 
-Kinds: `op-decls`, `op-defs`, `dialect-decls`, `dialect-defs`, `typedef-decls`, `typedef-defs`, `rewriters`, `rewriter-decls`.
+Kinds: `op-decls`, `op-defs`, `dialect-decls`, `dialect-defs`, `typedef-decls`, `typedef-defs`, `rewriters`, `rewriter-decls`. Omitting `kinds` or passing an empty array both fall back to `op-decls` / `op-defs`.
 
 - Always passes `-I <tdDir>` and uses `tdDir` as cwd, so `include "ToyOps.td"` resolves;
 - `.inc` output goes to the system temp directory and is deleted afterwards;
@@ -89,7 +89,7 @@ Kinds: `op-decls`, `op-defs`, `dialect-decls`, `dialect-defs`, `typedef-decls`, 
 { "stderr": "<raw mlir-tblgen stderr>", "tdFile": "path/to/ToyOps.td" }
 ```
 
-`tdFile` or `source` is optional; when present, `record` is back-filled from the enclosing `def` and the fix quotes the corrected snippet.
+`tdFile` or `source` is optional; when present, `record` is back-filled from the enclosing `def` and the fix quotes the corrected snippet. With neither given, the first `path:line:col:` in `stderr` is used as the `.td` (only if that file exists).
 
 Kinds: `undefined-record`, `constraint`, `syntax`, `include`, and `other` (unknown messages keep `fix:null` — nothing is invented).
 
@@ -104,7 +104,7 @@ Everything runs through argv spawn (no shell, no string concatenation), writes a
 ## Development
 
 ```bash
-npm test          # 52 tests; real-tblgen cases self-skip where spawning is blocked
+npm test          # 55 tests; real-tblgen cases self-skip where spawning is blocked
 npm run smoke     # toolchain-free smoke check
 ```
 

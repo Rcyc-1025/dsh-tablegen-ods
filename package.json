@@ -1,6 +1,6 @@
 {
   "name": "dsh-tablegen-ods",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MLIR ODS TableGen 骨架生成与诊断：td_scaffold 生成 7 个文件、td_check 跑 mlir-tblgen、td_explain 解释报错",
   "type": "module",
   "main": "lib/index.js",
