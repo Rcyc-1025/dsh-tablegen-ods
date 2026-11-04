@@ -1,0 +1,16 @@
+# dsh-tablegen-ods：MLIR ODS TableGen 骨架生成、校验与报错解释。
+#
+# 三个工具（td_scaffold / td_check / td_explain）总是会被注册：插件加载阶段不探测工具链，
+# 也不会因为缺少 mlir-tblgen 而加载失败。只有在真正需要外部程序时（td_scaffold 的校验、
+# td_check），才会解析 mlir-tblgen 路径；解析不到就返回 ok:false + 中文 hint（不抛异常）。
+#
+# 查找顺序：config.mlirTblgenPath（显式路径）> toolchain.json 的 llvm.tools.mlirTblgen.path >
+# 常见绝对安装位置；toolchain.json 的查找顺序是：本包同级/包内 toolchain.json →
+# 会话 cwd/toolchain.json → 会话 cwd/mlir-lang/toolchain.json，也可用环境变量
+# MLIR_TOOLCHAIN_JSON 直接指定。
+- insert:
+    - id: tablegen-ods
+      name: 'dsh-tablegen-ods'
+      config:
+        timeoutMs: 30000
+        maxOutputBytes: 1048576

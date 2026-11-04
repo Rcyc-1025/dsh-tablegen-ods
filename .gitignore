@@ -1,0 +1,12 @@
+node_modules/
+npm-debug.log*
+*.log
+
+# 本地探针/构建产物
+.verify/
+.scratch/
+.tmp-smoke/
+build/
+*.tgz
+.DS_Store
+Thumbs.db

@@ -1,0 +1,49 @@
+{
+  "name": "dsh-tablegen-ods",
+  "version": "0.1.0",
+  "description": "MLIR ODS TableGen 骨架生成与诊断：td_scaffold 生成 7 个文件、td_check 跑 mlir-tblgen、td_explain 解释报错",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.5 <0.3.0-0"
+  },
+  "scripts": {
+    "test": "node --test --test-isolation=none test/naming.test.mjs test/diag.test.mjs test/explain.test.mjs test/tools.test.mjs test/plugin.test.mjs test/integration.test.mjs",
+    "smoke": "node test/smoke.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "mlir",
+    "tablegen",
+    "ods"
+  ],
+  "license": "MIT",
+  "author": "Rcyc-1025",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rcyc-1025/dsh-tablegen-ods.git"
+  },
+  "homepage": "https://github.com/Rcyc-1025/dsh-tablegen-ods#readme",
+  "bugs": {
+    "url": "https://github.com/Rcyc-1025/dsh-tablegen-ods/issues"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
